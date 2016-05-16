@@ -1,0 +1,12 @@
+---
+- name: sudo check
+  hosts: vms
+  tasks:
+    - name: show whoami as root
+      become: true
+      become_user: root
+      become_method: sudo
+      shell: whoami
+      register: out
+
+    - debug: var=out.stdout

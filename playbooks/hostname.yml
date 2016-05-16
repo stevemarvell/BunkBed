@@ -1,0 +1,9 @@
+---
+- name: hostname
+  hosts: vms
+  tasks:
+    - name: show hostname
+      shell: hostname
+      register: out
+
+    - debug: var=out.stdout

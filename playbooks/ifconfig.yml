@@ -1,0 +1,9 @@
+---
+- name: ifconfig
+  hosts: vms
+  tasks:
+    - name: show ifconfig
+      shell: ifconfig
+      register: out
+
+    - debug: var=out.stdout_lines
