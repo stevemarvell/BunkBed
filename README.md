@@ -15,7 +15,7 @@ root@host:~# apt install vagrant virtualbox
 ```
 
 Ubuntu and package version check:
-```
+```sh
 root@host:~# lsb_release -a
 No LSB modules are available.
 Distributor ID:	Ubuntu
@@ -33,15 +33,27 @@ Vagrant 1.8.1
 ```
 ## Usage
 
+### Configuration
+
+TODO
+
 Write an appropriate playbook.
+
+### Execution
 
 Start and provision environment
 ```sh
-user@host:~$ cd .../$PROJECT
-user@host:~$ vagrant up
+user@host:.../project$ vagrant up
 ```
 
+### Confirmation
 
+```
+user@host:.../project$ ssh -i ~/.vagrant.d/insecure_private_key vagrant@192.168.144.51
+vagrant@machine1:~$
+user@host:.../project$ ssh -i ~/.vagrant.d/insecure_private_key vagrant@192.168.144.52
+vagrant@machine2:~$
+```
 
 ## Contributing
 
