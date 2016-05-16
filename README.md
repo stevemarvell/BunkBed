@@ -78,6 +78,8 @@ maintained one has a `hostname` and `ifdown` and patch workarounds are
 unwise. Better to wait for Vagrant 1.8.2 and any appropriate updates
 to Ununtu 16.04. - SM
 
+Had to downgrade to wily64 to get multiple network cards to work.
+
 ## TODO
 
 * Address the above ifdown issue
