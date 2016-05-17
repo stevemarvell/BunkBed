@@ -35,7 +35,9 @@ Vagrant 1.8.1
 
 ### Configuration
 
-Copy insecure key to id_rsa
+```
+user@host:.../project$ ssh-keygen -t rsa -N "" -f vagrant_rsa -C vagrant
+```
 
 TODO
 

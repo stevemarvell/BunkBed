@@ -12,8 +12,15 @@ Vagrant.configure(2) do |config|
   # use secure key
   
   config.ssh.insert_key = false
-  config.ssh.private_key_path = "./vagrant_rsa"
+  config.ssh.private_key_path = ["vagrant_rsa", "~/.vagrant.d/insecure_private_key"]
 #  config.ssh.forward_agent = true
+
+  config.vm.provision "file", source: "vagrant_rsa.pub", destination: "~/.ssh/authorized_keys"
+  
+  config.vm.provision "shell", inline: <<-EOC
+    sudo sed -i -e "\\#PasswordAuthentication yes# s#PasswordAuthentication yes#PasswordAuthentication no#g" /etc/ssh/sshd_config
+    sudo service ssh restart
+  EOC
   
   # number of machines
   
