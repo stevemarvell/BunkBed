@@ -19,10 +19,7 @@ Vagrant.configure(2) do |config|
   
   config.vm.provision "file", source: "vagrant_rsa.pub", destination: "~/.ssh/authorized_keys"
   
-  config.vm.provision "shell", inline: <<-EOC
-    sudo sed -i -e "\\#PasswordAuthentication no# s!\\#!!g" /etc/ssh/sshd_config
-    sudo service ssh restart
-  EOC
+#  config.vm.provision "shell", path: "guest_ssh.sh"
   
   # number of machines
   

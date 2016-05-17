@@ -34,7 +34,6 @@ Vagrant 1.8.1
 ## Usage
 
 ### Configuration
-
 ```
 user@host:.../project$ ssh-keygen -t rsa -N "" -f vagrant_rsa -C vagrant
 ```
@@ -42,6 +41,8 @@ user@host:.../project$ ssh-keygen -t rsa -N "" -f vagrant_rsa -C vagrant
 TODO
 
 Write an appropriate playbook.
+
+Concoct generic security script for guest_ssh.sh
 
 ### Execution
 
