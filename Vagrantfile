@@ -11,9 +11,9 @@ Vagrant.configure(2) do |config|
 
   # use secure key
   
-  config.ssh.insert_key = false
-  config.ssh.private_key_path = File.expand_path("./id_rsa")
-  config.ssh.forward_agent = true
+#  config.ssh.insert_key = false
+#  config.ssh.private_key_path = File.expand_path("./id_rsa")
+#  config.ssh.forward_agent = true
   
   # number of machines
   
@@ -45,7 +45,7 @@ Vagrant.configure(2) do |config|
           ansible.inventory_path="./hosts"
           ansible.limit = "vms"
           
-          ansible.playbook = "./playbooks/hostname.yml"
+          ansible.playbook = "provision.yml"
           
         end
         

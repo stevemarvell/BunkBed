@@ -1,0 +1,6 @@
+---
+- name: show hostname
+  shell: hostname
+  register: out
+
+- debug: var=out.stdout
