@@ -35,6 +35,8 @@ Vagrant 1.8.1
 
 ### Configuration
 
+Copy insecure key to id_rsa
+
 TODO
 
 Write an appropriate playbook.

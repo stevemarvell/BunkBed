@@ -1,6 +1,7 @@
 ---
 - name: show hostname
-  shell: hostname
+  apt: name="thig" state="present"
   register: out
 
 - debug: var=out.stdout
+- debug: var=out.stderr

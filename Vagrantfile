@@ -6,13 +6,13 @@ Vagrant.require_version ">= 1.7.0"
 
 Vagrant.configure(2) do |config|
 
-#  config.vm.box = "geerlingguy/ubuntu1604"
-  config.vm.box = "ubuntu/wily64"
+  config.vm.box = "geerlingguy/ubuntu1604"
+#  config.vm.box = "ubuntu/wily64"
 
   # use secure key
   
-#  config.ssh.insert_key = false
-#  config.ssh.private_key_path = File.expand_path("./id_rsa")
+  config.ssh.insert_key = false
+  config.ssh.private_key_path = "./vagrant_rsa"
 #  config.ssh.forward_agent = true
   
   # number of machines
@@ -27,7 +27,7 @@ Vagrant.configure(2) do |config|
 
       machine.vm.network "private_network", ip: "192.168.144.#{50+machine_id}"
 
-      machine.vm.network "private_network", ip: "10.11.12.#{50+machine_id}"
+#      machine.vm.network "private_network", ip: "10.11.12.#{50+machine_id}"
       
       machine.vm.provider :virtualbox do |vb|
         vb.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
