@@ -9,9 +9,11 @@ Vagrant.configure(2) do |config|
 #  config.vm.box = "geerlingguy/ubuntu1604"
   config.vm.box = "ubuntu/wily64"
 
-  # use insecure key
+  # use secure key
   
-  config.ssh.insert_key = false;
+  config.ssh.insert_key = false
+  config.ssh.private_key_path = File.expand_path("./id_rsa")
+  config.ssh.forward_agent = true
   
   # number of machines
   
