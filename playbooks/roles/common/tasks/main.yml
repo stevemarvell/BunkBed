@@ -1,3 +1,18 @@
 ---
 - name: copy a test file
   copy: src=files/IFYOUCANSEETHIS.txt dest=/home/vagrant/IFYOUCANSEETHIS.txt
+
+- name: update user
+  user: name=vagrant groups=libvirtd append=yes
+  
+- name: vm packages
+  become: yes
+  become_user: root
+  apt: name=python-libvirt state=present
+
+- name: define vm
+  virt: name=alpha
+        command=define
+        
+- name: start vm
+  virt: name=alpha state=running

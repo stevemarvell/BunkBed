@@ -18,7 +18,9 @@ Vagrant.configure("2") do |config|
     libvirt.nested = true
 
     libvirt.driver = "kvm"
-    
+
+    libvirt.connect_via_ssh = false
+    libvirt.id_ssh_key_file = File.expand_path("vagrant_rsa")
   end
 
   #
@@ -47,10 +49,6 @@ Vagrant.configure("2") do |config|
   config.vm.provision "file",
                       source: "vagrant_rsa.pub",
                       destination: "~/.ssh/authorized_keys"
-
-  config.vm.provider :libvirt do |libvirt|
-    libvirt.id_ssh_key_file = File.expand_path("vagrant_rsa")
-  end
 
   #  config.vm.provision "shell", path: "guest_ssh.sh"
 

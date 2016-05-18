@@ -1,0 +1,10 @@
+---
+- name: test
+  hosts: vms
+  become: root
+  serial: 1
+  tasks:
+
+  handlers:
+    - name: commit
+      pacemaker: commit
