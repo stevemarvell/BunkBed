@@ -1,7 +1,3 @@
 ---
-- name: show hostname
-  apt: name="thig" state="present"
-  register: out
-
-- debug: var=out.stdout
-- debug: var=out.stderr
+- name: copy a test file
+  copy: src=files/IFYOUCANSEETHIS.txt dest=/home/vagrant/IFYOUCANSEETHIS.txt

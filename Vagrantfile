@@ -21,7 +21,7 @@ Vagrant.configure(2) do |config|
   
 #  config.vm.provision "shell", path: "guest_ssh.sh"
   
-  # number of machines
+  # number of servers
 
   # shared folders
   # note: the project directory is already shared to /vagrant
@@ -30,33 +30,32 @@ Vagrant.configure(2) do |config|
   
   N = 2
   
-  (1..N).each do |machine_id|
+  (1..N).each do |server_id|
     
-    config.vm.define "machine#{machine_id}" do |machine|
+    config.vm.define "server#{server_id}" do |server|
 
-      machine.vm.hostname = "machine#{machine_id}"
+      server.vm.hostname = "server#{server_id}"
 
-      machine.vm.network "private_network", ip: "192.168.144.#{50+machine_id}"
+      server.vm.network "private_network", ip: "192.168.144.#{50+server_id}"
 
-#      machine.vm.network "private_network", ip: "10.11.12.#{50+machine_id}"
+#      server.vm.network "private_network", ip: "10.11.12.#{50+server_id}"
       
-      machine.vm.provider :virtualbox do |vb|
+      server.vm.provider :virtualbox do |vb|
         vb.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
       end
       
       ##############################################
       # Only execute the Ansible provisioner once
-      # all the machines are up and ready.
+      # all the servers are up and ready.
       #
       
-      if machine_id == N
+      if server_id == N
 
-        machine.vm.provision :ansible do |ansible|
+        server.vm.provision :ansible do |ansible|
           
-          ansible.inventory_path="./hosts"
-          ansible.limit = "vms"
-          
-          ansible.playbook = "provision.yml"
+          ansible.inventory_path="virtual"
+          ansible.playbook = "site.yml"
+          ansible.limit = "servers"
           
         end
         

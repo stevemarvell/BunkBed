@@ -38,13 +38,15 @@ Vagrant 1.8.1
 user@host:.../project$ ssh-keygen -t rsa -N "" -f vagrant_rsa -C vagrant
 ```
 
-TODO
+Ensure public key is in your ssh `authorized_keys` file.
+
+**TODO**
 
 Write an appropriate playbook.
 
 Concoct generic security script for guest_ssh.sh
 
-Provision inter machine private network when Ubuntu sorts itself out
+Provision inter server private network when Ubuntu sorts itself out
 
 ### Execution
 
@@ -53,13 +55,22 @@ Start and provision environment
 user@host:.../project$ vagrant up
 ```
 
+**WARNING** If you bring up anything that is not the maximum number of
+  server individually, you will not get the ansible provision. Use
+  this for two servers, for instance. 
+
+Instead to brin up a single server, ensure you use, say
+```sh
+user@host:.../project$ vagrant up server2
+```
+
 ### Confirmation
 
 ```
-user@host:.../project$ ssh -i ~/.vagrant.d/insecure_private_key vagrant@192.168.144.51
-vagrant@machine1:~$
-user@host:.../project$ ssh -i ~/.vagrant.d/insecure_private_key vagrant@192.168.144.52
-vagrant@machine2:~$
+user@host:.../project$ ssh -i vagrant_rsa vagrant@192.168.144.51
+vagrant@server1:~$
+user@host:.../project$ ssh -i vagrant_rsa vagrant@192.168.144.52
+vagrant@server2:~$
 ```
 
 ## Contributing
