@@ -44,6 +44,8 @@ Write an appropriate playbook.
 
 Concoct generic security script for guest_ssh.sh
 
+Provision inter machine private network when Ubuntu sorts itself out
+
 ### Execution
 
 Start and provision environment
