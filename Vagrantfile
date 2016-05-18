@@ -22,6 +22,11 @@ Vagrant.configure(2) do |config|
 #  config.vm.provision "shell", path: "guest_ssh.sh"
   
   # number of machines
+
+  # shared folders
+  # note: the project directory is already shared to /vagrant
+
+  config.vm.synced_folder "share", "/share", create: "true"
   
   N = 2
   
