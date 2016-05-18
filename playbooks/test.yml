@@ -1,5 +1,5 @@
 ---
 - name: test
-  hosts: servers
+  hosts: nodes
   roles:
     - common

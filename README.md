@@ -4,33 +4,74 @@ A Vagrant based OpenStack implementation orchestrated with Ansible.
 
 ## Installation
 
-The `ansible`, `vagrant` and `virtualbox` packages are requred.
-
 Ubuntu installation:
 ```sh
 root@host:~# apt-add-repository ppa:ansible/ansible
 root@host:~# apt update
 root@host:~# apt install ansible
-root@host:~# apt install vagrant virtualbox
+root@host:~# apt install vagrant qemu-kvm libvirt-bin libvirt-dev
+root@host:~# apt install virt-manager 
 ```
 
-Ubuntu and package version check:
+Libvirt installation:
+```
+## a patch may be required
+
+user@host:~$ vagrant plugin install vagrant-libvirt
+user@host:~$ vagrant plugin install vagrant-mutate
+```
+
+# sudo adduser $USER libvirtd ???
+
+Ubuntu version check:
 ```sh
-root@host:~# lsb_release -a
+user@host:~$ lsb_release -a
 No LSB modules are available.
 Distributor ID:	Ubuntu
 Description: Ubuntu 16.04 LTS
 Release: 16.04
 Codename: xenial
+```
 
-root@host:~# ansible --version
+Package version check:
+```sh
+user@host:~$ ansible --version
 ansible 2.0.0.2
   config file = /etc/ansible/ansible.cfg
   configured module search path = Default w/o overrides
 
-root@host:~# vagrant --version
+user@host:~$ vagrant --version
 Vagrant 1.8.1
+
+user@host:~$ vagrant plugin list
+vagrant-libvirt (0.0.33)
+vagrant-mutate (1.1.0)
 ```
+
+Virtual machine installation:
+```sh
+# user@host:~$ vagrant box add ubuntu/xenial64
+user@host:~$ vagrant box add geerlingguy/ubuntu1604
+ 
+user@host:~$ vagrant box list
+geerlingguy/ubuntu1604 (virtualbox, 1.0.1)
+ubuntu/xenial64        (virtualbox, 20160516.1.0)
+
+
+user@host:~$ vagrant mutate geerlingguy/ubuntu1604 libvirt
+user@host:~$ vagrant mutate ubuntu/xenial64 libvirt
+user@host:~$ vagrant box list
+geerlingguy/ubuntu1604 (libvirt, 1.0.1)
+geerlingguy/ubuntu1604 (virtualbox, 1.0.1)
+ubuntu/xenial64        (libvirt, 20160516.1.0)
+ubuntu/xenial64        (virtualbox, 20160516.1.0)
+
+user@host:~$ 
+user@host:~$ 
+user@host:~$ 
+
+```
+
 ## Usage
 
 ### Configuration
@@ -46,7 +87,7 @@ Write an appropriate playbook.
 
 Concoct generic security script for guest_ssh.sh
 
-Provision inter server private network when Ubuntu sorts itself out
+Provision inter node private network when Ubuntu sorts itself out
 
 ### Execution
 
@@ -56,29 +97,29 @@ user@host:.../project$ vagrant up
 ```
 
 **WARNING** If you bring up anything that is not the maximum number of
-  server individually, you will not get the ansible provision. Use
-  this for two servers, for instance. 
+  nodes individually, you will not get the ansible provision. Use
+  this for two nodes, for instance. 
 
-Instead to brin up a single server, ensure you use, say
+Instead to brin up a single node, ensure you use, say
 ```sh
-user@host:.../project$ vagrant up server2
+user@host:.../project$ vagrant up node2
 ```
 
 ### Confirmation
 
 ```
 user@host:.../project$ ssh -i vagrant_rsa vagrant@192.168.144.51
-vagrant@server1:~$
+vagrant@node1:~$
 user@host:.../project$ ssh -i vagrant_rsa vagrant@192.168.144.52
-vagrant@server2:~$
+vagrant@node2:~$
 ```
 
 ## Contributing
 
 1. Fork the project repo
-2. Create your feature branch: `git checkout -b my-new-feature`
-3. Commit your changes: `git commit -am 'Add some feature'`
-4. Push to the branch: `git push origin my-new-feature`
+2. Create your feature branch: `git checkout -b myfeature`
+3. Commit your changes: `git commit -am 'Added my feature'`
+4. Push to the branch: `git push origin myfeature`
 5. Submit a pull request
 
 ## Credits

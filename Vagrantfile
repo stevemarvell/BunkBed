@@ -1,61 +1,112 @@
-# This guide is optimized for Vagrant 1.7 and above.
-# Although versions 1.6.x should behave very similarly, it is recommended
-# to upgrade instead of disabling the requirement below.
+Vagrant.configure("2") do |config|
 
-Vagrant.require_version ">= 1.7.0"
+  ##############################################
+  #
+  # Boxes
+  #
 
-Vagrant.configure(2) do |config|
-
+  #  config.vm.box = "ubuntu/xenial64"
   config.vm.box = "geerlingguy/ubuntu1604"
-#  config.vm.box = "ubuntu/wily64"
+  #  config.vm.box = "ubuntu/wily64"
+
+  config.vm.provider :libvirt do |libvirt|
+
+    libvirt.memory = 256
+    libvirt.cpus = 2
+
+    # nested virtual machine wizardry
+    libvirt.nested = true
+
+    libvirt.driver = "kvm"
+    
+  end
+
+  #
+  ##############################################
+
+  ##############################################
+  #
+  # SSH
+  #
+
+  # vagrant issues #1673..fixes hang with configure_networks
+
+  config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
 
   # use secure key
   
   config.ssh.insert_key = false
-  config.ssh.private_key_path = ["vagrant_rsa", "~/.vagrant.d/insecure_private_key"]
-#  config.ssh.forward_agent = true
 
-  # guest ssh config
-  
-  config.vm.provision "file", source: "vagrant_rsa.pub", destination: "~/.ssh/authorized_keys"
-  
-#  config.vm.provision "shell", path: "guest_ssh.sh"
-  
-  # number of servers
+  # this is so we can set our own key but use insecure one first
 
-  # shared folders
-  # note: the project directory is already shared to /vagrant
+  config.ssh.private_key_path  = [
+    "vagrant_rsa",
+    "~/.vagrant.d/insecure_private_key"
+  ]
+
+  config.vm.provision "file",
+                      source: "vagrant_rsa.pub",
+                      destination: "~/.ssh/authorized_keys"
+
+  config.vm.provider :libvirt do |libvirt|
+    libvirt.id_ssh_key_file = File.expand_path("vagrant_rsa")
+  end
+
+  #  config.vm.provision "shell", path: "guest_ssh.sh"
+
+  #
+  ##############################################
+
+  ##############################################
+  #
+  # Filesystem
+  #
+
+  # enable shared folder
 
   config.vm.synced_folder "share", "/share", create: "true"
+
+  # disable "this" director as /vagrant
+  # config.vm.synced_folder '.', '/vagrant', :disabled => true
+
+  #
+  ##############################################
+
+  ##############################################
+  #
+  # VMs
+  #
   
+  # number of nodes
+
   N = 2
   
-  (1..N).each do |server_id|
+  (1..N).each do |node_id|
     
-    config.vm.define "server#{server_id}" do |server|
+    config.vm.define "node#{node_id}" do |node|
 
-      server.vm.hostname = "server#{server_id}"
+      node.vm.hostname = "node#{node_id}"
 
-      server.vm.network "private_network", ip: "192.168.144.#{50+server_id}"
+      node.vm.network "private_network", ip: "192.168.144.#{50+node_id}"
 
-#      server.vm.network "private_network", ip: "10.11.12.#{50+server_id}"
-      
-      server.vm.provider :virtualbox do |vb|
-        vb.customize ["modifyvm", :id, "--nicpromisc3", "allow-all"]
-      end
-      
+      # This doesn't work because of the idfown problem is 16.04
+      # node.vm.network "private_network", ip: "10.11.12.#{50+node_id}"
+
       ##############################################
+      #
+      # Ansible
+      #
       # Only execute the Ansible provisioner once
-      # all the servers are up and ready.
+      # all the nodes are up and ready.
       #
       
-      if server_id == N
+      if node_id == N
 
-        server.vm.provision :ansible do |ansible|
+        node.vm.provision :ansible do |ansible|
           
           ansible.inventory_path="virtual"
           ansible.playbook = "site.yml"
-          ansible.limit = "servers"
+          ansible.limit = "nodes"
           
         end
         
@@ -66,4 +117,8 @@ Vagrant.configure(2) do |config|
       
     end
   end
+
+  #
+  ##############################################
+
 end
