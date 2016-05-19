@@ -1,3 +1,15 @@
+- name: install latest libvirtd 
+  apt:
+    name: apache2
+    update_cache: yes
+    state: latest
+
+- name: run libvirt daemon
+  service:
+    name: libvirt-bin
+    state: running
+    enabled: true
+        
 - name: install libvirt python library
   apt: name=python-libvirt state=present
 
