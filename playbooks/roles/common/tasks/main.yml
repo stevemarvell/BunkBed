@@ -1,6 +1,0 @@
----
-- name: copy a test regular file
-  copy: src=IFYOUCANSEETHIS.txt dest=/home/vagrant/IFYOUCANSEETHIS.txt
-
-- name: copy a test templated file
-  template: src=IFYOUCANALSOSEETHIS.txt.j2 dest=/home/vagrant/IFYOUCANALSOSEETHIS.txt

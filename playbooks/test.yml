@@ -2,4 +2,4 @@
 - name: test
   hosts: nodes
   roles:
-    - common
+    - test
