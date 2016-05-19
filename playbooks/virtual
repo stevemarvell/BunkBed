@@ -15,3 +15,6 @@ vms
 
 [webservers:children]
 nodes
+
+[hosters:children]
+nodes

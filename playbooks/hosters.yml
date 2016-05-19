@@ -1,0 +1,6 @@
+- name: host vms
+  hosts: hosters
+  become: yes
+  become_user: root
+  roles:
+    - hoster

@@ -1,0 +1,13 @@
+- name: install libvirt python library
+  apt: name=python-libvirt state=present
+
+- name: update vagrant user
+  user: name=vagrant groups=libvirtd append=yes
+  
+- name: define vm
+  virt: name=alpha
+        command=define
+        xml="{{ lookup('template', 'kvm-template.xml.j2') }}"
+        
+- name: start vm
+  virt: name=alpha state=running
