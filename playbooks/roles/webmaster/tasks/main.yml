@@ -1,0 +1,14 @@
+- name: ensure apache2 latest version
+  apt: name=apache2 update_cache=yes state=latest
+  
+- name: enable mod_rewrite
+  apache2_module: name=rewrite state=present
+  notify:
+    - restart apache2
+    
+- name: move standard index to default
+  command: mv /var/www/html/index.html /var/www/html/index.old
+    
+- name: template hello world index
+  template: src=hello_world_index.html.j2 dest=/var/www/html/index.html
+  

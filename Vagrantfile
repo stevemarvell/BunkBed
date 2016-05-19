@@ -102,7 +102,7 @@ Vagrant.configure("2") do |config|
 
         node.vm.provision :ansible do |ansible|
           
-          ansible.inventory_path="virtual"
+          ansible.inventory_path="playbooks/virtual"
           ansible.playbook = "playbooks/site.yml"
           ansible.limit = "nodes"
           
