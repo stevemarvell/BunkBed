@@ -14,14 +14,18 @@ root@host:~# apt install virt-manager
 ```
 
 Libvirt installation:
-```
-## a patch may be required
-
+```sh
 user@host:~$ vagrant plugin install vagrant-libvirt
 user@host:~$ vagrant plugin install vagrant-mutate
 ```
 
-# sudo adduser $USER libvirtd ???
+If you get this type of message when installing the above:
+```
+/usr/lib/ruby/2.3.0/rubygems/specification.rb:946:in `all=': undefined method `group_by' for nil:NilClass (NoMethodError)
+```
+Then you have encountered a vagrant bug in 1.8.1 (https://github.com/mitchellh/vagrant/issues/7073) see https://github.com/mitchellh/vagrant/pull/7198 for fix.
+
+
 
 Ubuntu version check:
 ```sh
@@ -46,37 +50,94 @@ Vagrant 1.8.1
 user@host:~$ vagrant plugin list
 vagrant-libvirt (0.0.33)
 vagrant-mutate (1.1.0)
+
+user@host:~$ vagrant plugin list
+vagrant-libvirt (0.0.33)
+vagrant-mutate (1.1.0)
 ```
 
 Virtual machine installation:
 ```sh
+user@host:~$ newgrp libvirtd
+
 # user@host:~$ vagrant box add ubuntu/xenial64
 user@host:~$ vagrant box add geerlingguy/ubuntu1604
- 
+```
+
+You are likely to have needed to install a non-libvert box and mutate it.
+```sh
 user@host:~$ vagrant box list
 geerlingguy/ubuntu1604 (virtualbox, 1.0.1)
 ubuntu/xenial64        (virtualbox, 20160516.1.0)
 
-
+# user@host:~$ vagrant mutate ubuntu/xenial64 libvirt
 user@host:~$ vagrant mutate geerlingguy/ubuntu1604 libvirt
-user@host:~$ vagrant mutate ubuntu/xenial64 libvirt
 user@host:~$ vagrant box list
 geerlingguy/ubuntu1604 (libvirt, 1.0.1)
 geerlingguy/ubuntu1604 (virtualbox, 1.0.1)
-ubuntu/xenial64        (libvirt, 20160516.1.0)
-ubuntu/xenial64        (virtualbox, 20160516.1.0)
-
-user@host:~$ 
-user@host:~$ 
-user@host:~$ 
-
+# ubuntu/xenial64        (libvirt, 20160516.1.0)
+# ubuntu/xenial64        (virtualbox, 20160516.1.0)
 ```
 
 ## Usage
 
 ### Configuration
+
+Generate keys for vagrant
 ```
 user@host:.../project$ ssh-keygen -t rsa -N "" -f vagrant_rsa -C vagrant
+```
+
+Network check
+```
+eno1      Link encap:Ethernet  HWaddr b8:ae:ed:ea:f1:42  
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+          Interrupt:16 Memory:df100000-df120000 
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:311 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:311 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1 
+          RX bytes:23077 (23.0 KB)  TX bytes:23077 (23.0 KB)
+
+virbr0    Link encap:Ethernet  HWaddr 00:00:00:00:00:00  
+          inet addr:192.168.122.1  Bcast:192.168.122.255  Mask:255.255.255.0
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+wlp1s0    Link encap:Ethernet  HWaddr 00:c2:c6:c8:af:8c  
+          inet addr:192.168.0.2  Bcast:192.168.0.255  Mask:255.255.255.0
+          inet6 addr: fe80::c707:9b71:4bb1:4c75/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:150 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:213 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:12556 (12.5 KB)  TX bytes:21031 (21.0 KB)
+```
+
+Update `.../project/playbooks/virtual` appropriately.
+```
+localhost  ansible_connection=local
+vm1        ansible_host=192.168.122.51
+vm2        ansible_host=192.168.122.52
+...
+```
+
+Update `.../project/Vagrantfile` appropriately.
+```
+...
+      node.vm.network "private_network", ip: "192.168.122.#{50+node_id}"
+...
 ```
 
 Ensure public key is in your ssh `authorized_keys` file.
@@ -100,7 +161,7 @@ user@host:.../project$ vagrant up
   nodes individually, you will not get the ansible provision. Use
   this for two nodes, for instance. 
 
-Instead to brin up a single node, ensure you use, say
+Instead to bring up a single node, ensure you use, say
 ```sh
 user@host:.../project$ vagrant up node2
 ```
@@ -108,10 +169,42 @@ user@host:.../project$ vagrant up node2
 ### Confirmation
 
 ```
-user@host:.../project$ ssh -i vagrant_rsa vagrant@192.168.144.51
+user@host:.../project$ ssh -i vagrant_rsa vagrant@192.168.122.51
 vagrant@node1:~$
-user@host:.../project$ ssh -i vagrant_rsa vagrant@192.168.144.52
+
+user@host:.../project$ ssh -i vagrant_rsa vagrant@192.168.122.52
 vagrant@node2:~$
+
+user@host:~/...project$ curl 192.168.122.51
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Hello World</title>
+    </head>
+    <body>
+        <h1>Hello World</h1>
+        <p>
+            Hosted on node1
+        </p>
+    </body>
+</html>
+
+user@host:~/...project$ curl 192.168.122.52
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Hello World</title>
+    </head>
+    <body>
+        <h1>Hello World</h1>
+        <p>
+            Hosted on node2
+        </p>
+    </body>
+</html>
+
 ```
 
 ## Contributing
@@ -143,37 +236,39 @@ Had to downgrade to wily64 to get multiple network cards to work.
 
 * Address the above ifdown issue
 * Use a current vagrant image rather than user image when above is fixes
+* Create keys for inter box ssh
 
 ## License
 
 GLPv3 - see LICENSE
 
+### LOADS TODO
+
 convert existing image
 
 sudo apt install libguestfs-tools
 
+sysarch@biscuit:~/...project$ virsh  net-dumpxml generic
 
-sysarch@biscuit:~/BunkBed$ virsh  net-dumpxml generic
-
-sysarch@biscuit:~/BunkBed$ sudo ls /var/lib/libvirt/images
+sysarch@biscuit:~/...project$ sudo ls /var/lib/libvirt/images
 generic.qcow2
 
-sysarch@biscuit:~/BunkBed$ virsh --connect qemu:///system list --all
+sysarch@biscuit:~/...project$ virsh --connect qemu:///system list --all
  Id    Name                           State
 ----------------------------------------------------
  26    generic                        running
 
-sysarch@biscuit:~/BunkBed$ virsh --connect qemu:///system shutdown generic
+sysarch@biscuit:~/...project$ virsh --connect qemu:///system shutdown generic
 Domain generic is being shutdown
 
-sysarch@biscuit:~/BunkBed$ virt-clone --connect=qemu:///system -o generic -n generic2 -f ~/generic2.gcow2
+sysarch@biscuit:~/...project$ virt-clone --connect=qemu:///system -o generic -n generic2 -f ~/generic2.gcow2
 
 virt-clone --connect=qemu:///system -o vanilla -n generic -f ~/generic.gcow2
 
-sysarch@biscuit:~/BunkBed$ virsh  dumpxml  generic | grep "mac address"
+sysarch@biscuit:~/...project$ virsh  dumpxml  generic | grep "mac address"
       <mac address='52:54:00:f5:ef:16'/>
       
-sysarch@biscuit:~/BunkBed$ virsh  dumpxml  generic2 | grep "mac address"
+sysarch@biscuit:~/...project$ virsh  dumpxml  generic2 | grep "mac address"
       <mac address='52:54:00:aa:67:87'/>
 
 sysarch@biscuit:~$ virsh net-list --all

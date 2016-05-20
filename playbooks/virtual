@@ -1,6 +1,6 @@
 localhost  ansible_connection=local
-vm1   	   ansible_host=192.168.144.51
-vm2   	   ansible_host=192.168.144.52
+vm1   	   ansible_host=192.168.122.51
+vm2   	   ansible_host=192.168.122.52
 
 [vms]
 vm[1:2]

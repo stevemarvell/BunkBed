@@ -85,7 +85,7 @@ Vagrant.configure("2") do |config|
 
       node.vm.hostname = "node#{node_id}"
 
-      node.vm.network "private_network", ip: "192.168.144.#{50+node_id}"
+      node.vm.network "private_network", ip: "192.168.122.#{50+node_id}"
 
       # This doesn't work because of the idfown problem is 16.04
       # node.vm.network "private_network", ip: "10.11.12.#{50+node_id}"
