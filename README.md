@@ -147,3 +147,111 @@ Had to downgrade to wily64 to get multiple network cards to work.
 ## License
 
 GLPv3 - see LICENSE
+
+convert existing image
+
+sudo apt install libguestfs-tools
+
+
+sysarch@biscuit:~/BunkBed$ virsh  net-dumpxml generic
+
+sysarch@biscuit:~/BunkBed$ sudo ls /var/lib/libvirt/images
+generic.qcow2
+
+sysarch@biscuit:~/BunkBed$ virsh --connect qemu:///system list --all
+ Id    Name                           State
+----------------------------------------------------
+ 26    generic                        running
+
+sysarch@biscuit:~/BunkBed$ virsh --connect qemu:///system shutdown generic
+Domain generic is being shutdown
+
+sysarch@biscuit:~/BunkBed$ virt-clone --connect=qemu:///system -o generic -n generic2 -f ~/generic2.gcow2
+
+virt-clone --connect=qemu:///system -o vanilla -n generic -f ~/generic.gcow2
+
+sysarch@biscuit:~/BunkBed$ virsh  dumpxml  generic | grep "mac address"
+      <mac address='52:54:00:f5:ef:16'/>
+      
+sysarch@biscuit:~/BunkBed$ virsh  dumpxml  generic2 | grep "mac address"
+      <mac address='52:54:00:aa:67:87'/>
+
+sysarch@biscuit:~$ virsh net-list --all
+ Name                 State      Autostart     Persistent
+----------------------------------------------------------
+ default              active     yes           yes
+
+sysarch@biscuit:~$ brctl show
+bridge name	bridge id		STP enabled	interfaces
+virbr0		8000.000000000000	yes		
+sysarch@biscuit:~/test$ virsh net-dumpxml default 
+<network>
+  <name>default</name>
+  <uuid>5fcd1e5d-15f9-4d1d-9a56-2766d165236b</uuid>
+  <forward mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+  </forward>
+  <bridge name='virbr0' stp='on' delay='0'/>
+  <mac address='52:54:00:60:e3:61'/>
+  <ip address='192.168.122.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='192.168.122.2' end='192.168.122.254'/>
+    </dhcp>
+  </ip>
+</network>
+sysarch@biscuit:~/test$ virsh  dumpxml  vanilla | grep "mac address"      <mac address='52:54:00:0e:db:75'/>
+sysarch@biscuit:~/test$ virsh  dumpxml  generic | grep "mac address"
+      <mac address='52:54:00:c5:16:d5'/>
+sysarch@biscuit:~/test$ virsh net-update default add ip-dhcp-host "<host mac='52:54:00:0e:db:75' name='vanilla' ip='192.168.122.10' />" --live --config
+Updated network default persistent config and live state
+sysarch@biscuit:~/test$ virsh net-update default add ip-dhcp-host "<host mac='52:54:00:c5:16:d5' name='generic' ip='192.168.122.20' />" --live --config
+Updated network default persistent config and live state
+sysarch@biscuit:~/test$ virsh net-dumpxml default 
+<network>
+  <name>default</name>
+  <uuid>5fcd1e5d-15f9-4d1d-9a56-2766d165236b</uuid>
+  <forward mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+  </forward>
+  <bridge name='virbr0' stp='on' delay='0'/>
+  <mac address='52:54:00:60:e3:61'/>
+  <ip address='192.168.122.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='192.168.122.2' end='192.168.122.254'/>
+      <host mac='52:54:00:0e:db:75' name='vanilla' ip='192.168.122.10'/>
+      <host mac='52:54:00:c5:16:d5' name='generic' ip='192.168.122.20'/>
+    </dhcp>
+  </ip>
+</network>
+
+
+
+sysarch@biscuit:~$ virsh start vanilla
+
+sysarch@biscuit:~/test$ virsh ttyconsole vanilla
+/dev/pts/1
+
+sysarch@biscuit:~/test$ virsh edit vanilla
+Domain vanilla XML configuration not changed.
+
+sysarch@biscuit:~/test$ export VISUAL="emacsclient"
+sysarch@biscuit:~/test$ export EDITOR="emacsclient"
+sysarch@biscuit:~/test$ virsh edit vanilla
+Waiting for Emacs...
+Domain vanilla XML configuration edited.
+
+sysarch@biscuit:~/test$ 
+sysarch@biscuit:~/test$ virsh restart vanilla
+error: unknown command: 'restart'
+sysarch@biscuit:~/test$ virsh reboot vanilla
+
+
+virsh shutoff thing
+
+grub for console
+
+sysarch@biscuit:~/test$ virsh start vanilla

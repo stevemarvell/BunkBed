@@ -1,0 +1,11 @@
+
+      server.vm.network :private_network,
+                        :ip => '169.2.2.2/24', # bogus IP so tha vagrant-libvirt can create virt_network
+                        :auto_config => false,
+                        :libvirt__forward_mode => 'veryisolated',
+                        :libvirt__dhcp_enabled => false,
+                        :libvirt__network_name => 'test_network'
+
+
+
+

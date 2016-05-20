@@ -5,5 +5,5 @@
 - name: webservers
   include: webservers.yml
 
-- name: kvm test
-  include: hosters.yml
+#- name: kvm test
+#  include: hosters.yml

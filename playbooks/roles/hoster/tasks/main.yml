@@ -1,6 +1,6 @@
 - name: install latest libvirtd 
   apt:
-    name: apache2
+    name: libvirt-bin
     update_cache: yes
     state: latest
 
@@ -10,6 +10,18 @@
     state: running
     enabled: true
         
+- name: install latest qemu-kvm
+  apt:
+    name: qemu-kvm
+    update_cache: yes
+    state: latest
+
+- name: install latest qemu-kvm-spice
+  apt:
+    name: qemu-kvm-spice
+    update_cache: yes
+    state: latest
+
 - name: install libvirt python library
   apt: name=python-libvirt state=present
 
