@@ -360,5 +360,178 @@ vagrant@node2:~$ virsh undefine vanilla
 Domain vanilla has been undefined
 
 vagrant@node2:~$ 
+virsh net-dumpxml default 
+
+<network connections='1'>
+  <name>default</name>
+  <uuid>ada1df96-4609-4579-aa74-fddbbeca14ff</uuid>
+  <forward mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+  </forward>
+  <bridge name='virbr0' stp='on' delay='0'/>
+  <mac address='52:54:00:64:9a:3c'/>
+  <ip address='192.168.122.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='192.168.122.2' end='192.168.122.254'/>
+    </dhcp>
+  </ip>
+</network>
+
+=================================
+vagrant@node2:~$ virsh net-dumpxml default 
+<network connections='1'>
+  <name>default</name>
+  <uuid>ada1df96-4609-4579-aa74-fddbbeca14ff</uuid>
+  <forward mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+  </forward>
+  <bridge name='virbr0' stp='on' delay='0'/>
+  <mac address='52:54:00:64:9a:3c'/>
+  <ip address='192.168.122.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='192.168.122.2' end='192.168.122.254'/>
+    </dhcp>
+  </ip>
+</network>
+
+vagrant@node2:~$ virsh  dumpxml  vanilla | grep "mac address" 
+      <mac address='52:54:00:a8:fc:08'/>
+vagrant@node2:~$ ifconfig
+eth0      Link encap:Ethernet  HWaddr 52:54:00:d8:f2:88  
+          inet addr:192.168.121.141  Bcast:192.168.121.255  Mask:255.255.255.0
+          inet6 addr: fe80::5054:ff:fed8:f288/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:409668 errors:0 dropped:6 overruns:0 frame:0
+          TX packets:307166 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:1047897089 (1.0 GB)  TX bytes:26635384 (26.6 MB)
+
+eth1      Link encap:Ethernet  HWaddr 52:54:00:61:38:8e  
+          inet addr:192.168.144.52  Bcast:192.168.144.255  Mask:255.255.255.0
+          inet6 addr: fe80::5054:ff:fe61:388e/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:2033 errors:0 dropped:319 overruns:0 frame:0
+          TX packets:467 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:437381 (437.3 KB)  TX bytes:58221 (58.2 KB)
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+virbr0    Link encap:Ethernet  HWaddr 52:54:00:64:9a:3c  
+          inet addr:192.168.122.1  Bcast:192.168.122.255  Mask:255.255.255.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:55452 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:136419 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:3153604 (3.1 MB)  TX bytes:245012378 (245.0 MB)
+
+vnet0     Link encap:Ethernet  HWaddr fe:54:00:a8:fc:08  
+          inet6 addr: fe80::fc54:ff:fea8:fc08/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:19 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:133 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:500 
+          RX bytes:1918 (1.9 KB)  TX bytes:7907 (7.9 KB)
+
+vagrant@node2:~$ virsh net-update default add ip-dhcp-host "<host mac='52:54:00:a8:fc:08' name='vanilla' ip='192.168.121.20' />" --live --config
+Updated network default persistent config and live state
+vagrant@node2:~$ virsh net-dumpxml default 
+<network>
+  <name>default</name>
+  <uuid>ada1df96-4609-4579-aa74-fddbbeca14ff</uuid>
+  <forward mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+  </forward>
+  <bridge name='virbr0' stp='on' delay='0'/>
+  <mac address='52:54:00:64:9a:3c'/>
+  <ip address='192.168.122.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='192.168.122.2' end='192.168.122.254'/>
+      <host mac='52:54:00:a8:fc:08' name='vanilla' ip='192.168.121.20'/>
+    </dhcp>
+  </ip>
+</network>
+vagrant@node2:~$ virsh reboot vanilla
+Domain vanilla is being rebooted
+
+vagrant@node2:~$ virsh net-update default add ip-dhcp-host "<host mac='52:54:00:a8:fc:08' name='vanilla' ip='192.168.122.20' />" --live --config
+vagrant@node2:~$ virsh reboot vanilla
+Domain vanilla is being rebooted
+
+vagrant@node2:~$ ping 192.168.122.20
+PING 192.168.122.20 (192.168.122.20) 56(84) bytes of data.
+64 bytes from 192.168.122.20: icmp_seq=3 ttl=64 time=1.31 ms
+64 bytes from 192.168.122.20: icmp_seq=4 ttl=64 time=0.649 ms
+^C
+--- 192.168.122.20 ping statistics ---
+4 packets transmitted, 2 received, 50% packet loss, time 3018ms
+rtt min/avg/max/mdev = 0.649/0.980/1.312/0.332 ms
+vagrant@node2:~$ ssh system@192.168.122.20
+The authenticity of host '192.168.122.20 (192.168.122.20)' can't be established.
+ECDSA key fingerprint is SHA256:l/MS216b5RPEpbqnhtgw4BiPOZkF9MMDxPSizMd/uPM.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '192.168.122.20' (ECDSA) to the list of known hosts.
+system@192.168.122.20's password: 
+Welcome to Ubuntu 16.04 LTS (GNU/Linux 4.4.0-22-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com/
+
+The programs included with the Ubuntu system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Ubuntu comes with ABSOLUTELY NO WARRANTY, to the extent permitted by
+applicable law.
+
+To run a command as administrator (user "root"), use "sudo <command>".
+See "man sudo_root" for details.
+
+system@biscuit:~/BunkBed/test$ virsh define vanilla_test.xml 
+Domain vanilla_test defined from vanilla_test.xml
+
+system@biscuit:~/BunkBed/test$ virsh list --all
+ Id    Name                           State
+----------------------------------------------------
+ -     vanilla_test                   shut off
 
 
+Find ips
+$ arp -an
+
+system@biscuit:~/test$ grep mac vanilla_test.xml 
+    <type arch='x86_64' machine='pc-i440fx-wily'>hvm</type>
+      <mac address='52:54:00:a8:fc:08'/>
+system@biscuit:~/test$ arp -an
+...
+? (192.168.122.20) at 52:54:00:a8:fc:08 [ether] on virbr0
+...
+system@biscuit:~/test$ ssh system@192.168.122.20
+
+Welcome to Ubuntu 16.04 LTS (GNU/Linux 4.4.0-22-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com/
+Last login: Sat May 21 19:59:05 2016 from 192.168.122.1
+To run a command as administrator (user "root"), use "sudo <command>".
+See "man sudo_root" for details.
+
+system@vanilla:~$ 
+
+
+==========
+
+make sure your virtual machine runs sshd
+
+make sure you clone so as to change the mac address and keep vanilla
