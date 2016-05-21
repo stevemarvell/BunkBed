@@ -88,55 +88,18 @@ Generate keys for vagrant
 user@host:.../project$ ssh-keygen -t rsa -N "" -f vagrant_rsa -C vagrant
 ```
 
-Network check
-```
-eno1      Link encap:Ethernet  HWaddr b8:ae:ed:ea:f1:42  
-          UP BROADCAST MULTICAST  MTU:1500  Metric:1
-          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000 
-          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
-          Interrupt:16 Memory:df100000-df120000 
-
-lo        Link encap:Local Loopback  
-          inet addr:127.0.0.1  Mask:255.0.0.0
-          inet6 addr: ::1/128 Scope:Host
-          UP LOOPBACK RUNNING  MTU:65536  Metric:1
-          RX packets:311 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:311 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1 
-          RX bytes:23077 (23.0 KB)  TX bytes:23077 (23.0 KB)
-
-virbr0    Link encap:Ethernet  HWaddr 00:00:00:00:00:00  
-          inet addr:192.168.122.1  Bcast:192.168.122.255  Mask:255.255.255.0
-          UP BROADCAST MULTICAST  MTU:1500  Metric:1
-          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000 
-          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
-
-wlp1s0    Link encap:Ethernet  HWaddr 00:c2:c6:c8:af:8c  
-          inet addr:192.168.0.2  Bcast:192.168.0.255  Mask:255.255.255.0
-          inet6 addr: fe80::c707:9b71:4bb1:4c75/64 Scope:Link
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:150 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:213 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000 
-          RX bytes:12556 (12.5 KB)  TX bytes:21031 (21.0 KB)
-```
-
 Update `.../project/playbooks/virtual` appropriately.
 ```
 localhost  ansible_connection=local
-vm1        ansible_host=192.168.122.51
-vm2        ansible_host=192.168.122.52
+vm1        ansible_host=192.168.144.51
+vm2        ansible_host=192.168.144.52
 ...
 ```
 
 Update `.../project/Vagrantfile` appropriately.
 ```
 ...
-      node.vm.network "private_network", ip: "192.168.122.#{50+node_id}"
+      node.vm.network "private_network", ip: "192.168.144.#{50+node_id}"
 ...
 ```
 
@@ -169,13 +132,13 @@ user@host:.../project$ vagrant up node2
 ### Confirmation
 
 ```
-user@host:.../project$ ssh -i vagrant_rsa vagrant@192.168.122.51
+user@host:.../project$ ssh -i vagrant_rsa vagrant@192.168.144.51
 vagrant@node1:~$
 
-user@host:.../project$ ssh -i vagrant_rsa vagrant@192.168.122.52
+user@host:.../project$ ssh -i vagrant_rsa vagrant@192.168.144.52
 vagrant@node2:~$
 
-user@host:~/...project$ curl 192.168.122.51
+user@host:~/...project$ curl 192.168.144.51
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -190,7 +153,7 @@ user@host:~/...project$ curl 192.168.122.51
     </body>
 </html>
 
-user@host:~/...project$ curl 192.168.122.52
+user@host:~/...project$ curl 192.168.144.52
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -244,8 +207,6 @@ GLPv3 - see LICENSE
 
 ### LOADS TODO
 
-convert existing image
-
 sudo apt install libguestfs-tools
 
 sysarch@biscuit:~/...project$ virsh  net-dumpxml generic
@@ -290,18 +251,18 @@ sysarch@biscuit:~/test$ virsh net-dumpxml default
   </forward>
   <bridge name='virbr0' stp='on' delay='0'/>
   <mac address='52:54:00:60:e3:61'/>
-  <ip address='192.168.122.1' netmask='255.255.255.0'>
+  <ip address='192.168.144.1' netmask='255.255.255.0'>
     <dhcp>
-      <range start='192.168.122.2' end='192.168.122.254'/>
+      <range start='192.168.144.2' end='192.168.144.254'/>
     </dhcp>
   </ip>
 </network>
 sysarch@biscuit:~/test$ virsh  dumpxml  vanilla | grep "mac address"      <mac address='52:54:00:0e:db:75'/>
 sysarch@biscuit:~/test$ virsh  dumpxml  generic | grep "mac address"
       <mac address='52:54:00:c5:16:d5'/>
-sysarch@biscuit:~/test$ virsh net-update default add ip-dhcp-host "<host mac='52:54:00:0e:db:75' name='vanilla' ip='192.168.122.10' />" --live --config
+sysarch@biscuit:~/test$ virsh net-update default add ip-dhcp-host "<host mac='52:54:00:0e:db:75' name='vanilla' ip='192.168.144.10' />" --live --config
 Updated network default persistent config and live state
-sysarch@biscuit:~/test$ virsh net-update default add ip-dhcp-host "<host mac='52:54:00:c5:16:d5' name='generic' ip='192.168.122.20' />" --live --config
+sysarch@biscuit:~/test$ virsh net-update default add ip-dhcp-host "<host mac='52:54:00:c5:16:d5' name='generic' ip='192.168.144.20' />" --live --config
 Updated network default persistent config and live state
 sysarch@biscuit:~/test$ virsh net-dumpxml default 
 <network>
@@ -314,11 +275,11 @@ sysarch@biscuit:~/test$ virsh net-dumpxml default
   </forward>
   <bridge name='virbr0' stp='on' delay='0'/>
   <mac address='52:54:00:60:e3:61'/>
-  <ip address='192.168.122.1' netmask='255.255.255.0'>
+  <ip address='192.168.144.1' netmask='255.255.255.0'>
     <dhcp>
-      <range start='192.168.122.2' end='192.168.122.254'/>
-      <host mac='52:54:00:0e:db:75' name='vanilla' ip='192.168.122.10'/>
-      <host mac='52:54:00:c5:16:d5' name='generic' ip='192.168.122.20'/>
+      <range start='192.168.144.2' end='192.168.144.254'/>
+      <host mac='52:54:00:0e:db:75' name='vanilla' ip='192.168.144.10'/>
+      <host mac='52:54:00:c5:16:d5' name='generic' ip='192.168.144.20'/>
     </dhcp>
   </ip>
 </network>
@@ -330,11 +291,6 @@ sysarch@biscuit:~$ virsh start vanilla
 sysarch@biscuit:~/test$ virsh ttyconsole vanilla
 /dev/pts/1
 
-sysarch@biscuit:~/test$ virsh edit vanilla
-Domain vanilla XML configuration not changed.
-
-sysarch@biscuit:~/test$ export VISUAL="emacsclient"
-sysarch@biscuit:~/test$ export EDITOR="emacsclient"
 sysarch@biscuit:~/test$ virsh edit vanilla
 Waiting for Emacs...
 Domain vanilla XML configuration edited.
@@ -350,3 +306,59 @@ virsh shutoff thing
 grub for console
 
 sysarch@biscuit:~/test$ virsh start vanilla
+
+
+----------------------------
+----------------------------
+----------------------------
+----------------------------
+----------------------------
+----------------------------
+# apt install cpu-checker
+# kvm-ok 
+INFO: /dev/kvm exists
+KVM acceleration can be used
+
+# apt install libvirt-bin qemu-kvm qemu-utils virtinst qemu-user
+$ newgrp libvirtd
+
+$ qemu-img create -f qcow2 vanilla.qcow2 5G
+
+$ virsh net-list --all
+  Name                 State      Autostart     Persistent
+----------------------------------------------------------
+ default              active     yes           yes
+
+$ brctl show
+bridge name	bridge id		STP enabled	interfaces
+virbr0		8000.525400a5df11	yes		virbr0-nic
+
+consider
+net.ipv4.ip_forward = 1
+in etc /etc/sysctl.conf
+
+$ virt-install --virt-type=kvm --name vanilla --ram 1024 --vcpus 1 --os-type linux --nographics --extra-args='console=tty0 console=ttyS0,115200n8 serial' -v --disk vanilla.qcow2 --location http://archive.ubuntu.com/ubuntu/dists/xenial/main/installer-amd64
+
+
+sudo apt install isomaster
+cd ..
+
+
+agrant@node2:~$ virsh list
+ Id    Name                           State
+----------------------------------------------------
+ 2     vanilla                        running
+
+vagrant@node2:~$ virsh destroy vanilla
+Domain vanilla destroyed
+
+vagrant@node2:~$ virsh list
+ Id    Name                           State
+----------------------------------------------------
+
+vagrant@node2:~$ virsh undefine vanilla
+Domain vanilla has been undefined
+
+vagrant@node2:~$ 
+
+
